@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   root: '.',
   build: {
-    outDir: 'build', // Match Cloudflare Pages
+    outDir: 'dist', // Match Cloudflare Pages
     sourcemap: true,
     rollupOptions: {
       input: './index.html',
