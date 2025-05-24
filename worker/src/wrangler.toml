@@ -6,4 +6,4 @@ compatibility_date = "2025-05-24"
 [[d1_databases]]
 binding = "DB"
 database_name = "cookie_audits"
-database_id = "<your-d1-database-id>"
+database_id = "45eeaa5e-d051-4013-88ae-e7de297fba96"
