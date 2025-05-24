@@ -25,7 +25,7 @@ async function auditCookies(url) {
 (async () => {
   try {
     const result = await auditCookies(process.env.URL || 'https://example.com');
-    const response = await fetch('https://your-worker.workers.dev/audit', {
+    const response = await fetch('https://cookie-manager.africancontent807.workers.dev/audit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(result)
