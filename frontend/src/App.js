@@ -18,7 +18,7 @@ function App() {
 
   const fetchAudits = async () => {
     try {
-      const response = await fetch('https://your-worker.workers.dev/audits', {
+      const response = await fetch('https://cookie-manager.africancontent807.workers.dev/audits', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
