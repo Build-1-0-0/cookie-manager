@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 async function auditCookies(url) {
   const browser = await puppeteer.launch({
     headless: 'new',
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-web-security'],
   });
   const page = await browser.newPage();
   try {
@@ -12,9 +12,11 @@ async function auditCookies(url) {
     );
     await page.setExtraHTTPHeaders({
       'Accept-Language': 'en-US,en;q=0.9',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     });
+    await page.setBypassCSP(true);
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-    await page.waitForTimeout(2000); // Wait for cookie scripts
+    await page.waitForTimeout(3000);
     const cookies = await page.cookies();
     const audit = cookies.map((cookie) => ({
       name: cookie.name,
@@ -42,6 +44,9 @@ async function auditCookies(url) {
   for (const url of urls) {
     try {
       const result = await auditCookies(url);
+      if (result.cookies.length === 0) {
+        console.warn(`No cookies captured for ${url}`);
+      }
       const response = await fetch(workerUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
