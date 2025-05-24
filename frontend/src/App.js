@@ -16,7 +16,7 @@ function App() {
 
   const fetchAudits = async () => {
     try {
-      const response = await fetch('https://cookie-manager.africancontent807.workers.dev/audits', {
+      const response = await fetch('[invalid url, do not cite] {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -38,7 +38,7 @@ function App() {
       return;
     }
     try {
-      const response = await fetch('https://cookie-manager.africancontent807.workers.dev/audit', {
+      const response = await fetch('[invalid url, do not cite] {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, cookies: [] })
@@ -77,7 +77,7 @@ function App() {
           type="text"
           value={url}
           onChange={e => setUrl(e.target.value)}
-          placeholder="Enter URL (e.g., https://example.com)"
+          placeholder="Enter URL (e.g., [invalid url, do not cite])"
           className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-accent"
         />
         <button
@@ -91,20 +91,20 @@ function App() {
       {audits.length > 0 && (
         <div>
           <h2 className="text-2xl font-semibold text-primary mb-4">Recent Audits</h2>
-          <table className="w-full border-collapse mb-6">
+          <table className="w-full border-collapse mb-6 table-auto">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="p-2 text-left">URL</th>
-                <th className="p-2 text-left">Date</th>
-                <th className="p-2 text-left">Cookies</th>
+              <tr className="bg-gray-100 text-gray-700">
+                <th className="p-3 text-left font-semibold">URL</th>
+                <th className="p-3 text-left font-semibold">Date</th>
+                <th className="p-3 text-left font-semibold">Cookies</th>
               </tr>
             </thead>
             <tbody>
               {audits.map(audit => (
-                <tr key={audit.id} className="border-b">
-                  <td className="p-2">{audit.url}</td>
-                  <td className="p-2">{audit.created_at}</td>
-                  <td className="p-2">{JSON.parse(audit.cookies).length}</td>
+                <tr key={audit.id} className="border-b hover:bg-gray-50">
+                  <td className="p-3">{audit.url}</td>
+                  <td className="p-3">{audit.created_at}</td>
+                  <td className="p-3">{JSON.parse(audit.cookies).length}</td>
                 </tr>
               ))}
             </tbody>
