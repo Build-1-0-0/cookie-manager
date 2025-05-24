@@ -1,0 +1,9 @@
+# worker/wrangler.toml
+name = "cookie-manager-worker"
+main = "src/index.js"
+compatibility_date = "2025-05-24"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cookie_audits"
+database_id = "<your-d1-database-id>"
