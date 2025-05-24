@@ -1,3 +1,4 @@
+import fetch from 'node-fetch';
 const puppeteer = require('puppeteer');
 
 async function auditCookies(url) {
