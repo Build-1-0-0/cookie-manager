@@ -7,3 +7,9 @@ compatibility_date = "2025-05-24"
 binding = "DB"
 database_name = "cookie_audits"
 database_id = "45eeaa5e-d051-4013-88ae-e7de297fba96"
+
+[observability.logs]
+enabled = true
+
+
+
