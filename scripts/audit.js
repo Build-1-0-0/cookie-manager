@@ -1,10 +1,10 @@
 // scripts/audit.js
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer');
 
 async function auditCookies(url) {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ headless: 'new' });
   const page = await browser.newPage();
-  await page.goto(url, { waitUntil: "networkidle2" });
+  await page.goto(url, { waitUntil: 'networkidle2' });
 
   const cookies = await page.cookies();
   const audit = cookies.map(cookie => ({
@@ -14,8 +14,8 @@ async function auditCookies(url) {
     expires: cookie.expires,
     secure: cookie.secure,
     httpOnly: cookie.httpOnly,
-    // Flag deprecated settings (e.g., missing SameSite)
-    deprecated: !cookie.sameSite || cookie.expires === -1 ? true : false
+    sameSite: cookie.sameSite,
+    deprecated: !cookie.sameSite || cookie.expires === -1
   }));
 
   await browser.close();
@@ -23,11 +23,15 @@ async function auditCookies(url) {
 }
 
 (async () => {
-  const result = await auditCookies("https://example.com");
-  // Post to Cloudflare Worker
-  await fetch("https://your-worker.workers.dev", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(result)
-  });
+  try {
+    const result = await auditCookies(process.env.URL || 'https://example.com');
+    const response = await fetch('https://your-worker.workers.dev/audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(result)
+    });
+    console.log(await response.json());
+  } catch (error) {
+    console.error('Error:', error);
+  }
 })();
