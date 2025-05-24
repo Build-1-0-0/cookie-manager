@@ -1,0 +1,10 @@
+{
+  "name": "cookie-audit",
+  "dependencies": {
+    "puppeteer": "^23.0.0"
+  },
+  "engines": {
+    "node": "22.16.0",
+    "npm": "10.8.3"
+  }
+}
