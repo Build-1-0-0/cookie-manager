@@ -1,7 +1,7 @@
 {
   "name": "cookie-audit",
   "dependencies": {
-    "puppeteer": "^23.0.0"
+    "puppeteer": "^24.9.0"
   },
   "engines": {
     "node": "22.16.0",
