@@ -40,7 +40,7 @@ function App() {
       return;
     }
     try {
-      const response = await fetch('https://your-worker.workers.dev/audit', {
+      const response = await fetch('https://cookie-manager.africancontent807.workers.dev/audit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, cookies: [] })
