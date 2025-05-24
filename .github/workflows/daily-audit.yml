@@ -1,0 +1,21 @@
+name: Daily Cookie Audit
+on:
+  schedule:
+    - cron: '0 3 * * *' # 3 AM EAT
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: |
+          cd scripts
+          npm ci
+      - name: Run audit
+        run: |
+          cd scripts
+          node audit.js
