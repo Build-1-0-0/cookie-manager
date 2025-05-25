@@ -18,9 +18,9 @@ export default {
     // Handle POST /audit
     if (method === "POST" && pathname === "/audit") {
       try {
-        const { url, cookies } = await request.json();
-        if (!url || !cookies) {
-          return new Response(JSON.stringify({ error: "Invalid data" }), {
+        const { url } = await request.json();
+        if (!url) {
+          return new Response(JSON.stringify({ error: "Invalid data: URL is required" }), {
             status: 400,
             headers: {
               "Content-Type": "application/json",
@@ -29,14 +29,86 @@ export default {
           });
         }
 
-        const sanitizedCookies = JSON.stringify(cookies.map(cookie => ({
+        let fetchedCookies = [];
+        try {
+          const targetResponse = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'User-Agent': 'Cookie-Audit-Worker/1.0'
+            }
+          });
+
+          const setCookieHeaders = targetResponse.headers.getAll
+            ? targetResponse.headers.getAll('Set-Cookie') // Deprecated in some environments
+            : targetResponse.headers.get('Set-Cookie')?.split(',') || [];
+
+          fetchedCookies = setCookieHeaders.map(cookieString => {
+            const parts = cookieString.split(';').map(part => part.trim());
+            const [nameValue, ...attributes] = parts;
+            const [name, ...valueParts] = nameValue.split('=');
+            const value = valueParts.join('=');
+
+            const cookie = {
+              name: name.trim(),
+              domain: '',
+              path: '/',
+              expires: null,
+              secure: false,
+              httpOnly: false,
+              sameSite: ''
+            };
+
+            attributes.forEach(attr => {
+              const [attrName, ...attrValueParts] = attr.split('=');
+              const attrValue = attrValueParts.join('=');
+
+              switch (attrName.toLowerCase()) {
+                case 'domain':
+                  cookie.domain = attrValue;
+                  break;
+                case 'path':
+                  cookie.path = attrValue;
+                  break;
+                case 'expires': {
+                  const date = new Date(attrValue);
+                  if (!isNaN(date)) {
+                    cookie.expires = date.getTime();
+                  }
+                  break;
+                }
+                case 'max-age': {
+                  const maxAgeSeconds = parseInt(attrValue, 10);
+                  if (!isNaN(maxAgeSeconds)) {
+                    cookie.expires = Date.now() + maxAgeSeconds * 1000;
+                  }
+                  break;
+                }
+                case 'secure':
+                  cookie.secure = true;
+                  break;
+                case 'httponly':
+                  cookie.httpOnly = true;
+                  break;
+                case 'samesite':
+                  cookie.sameSite = attrValue;
+                  break;
+              }
+            });
+
+            return cookie;
+          });
+        } catch (fetchError) {
+          console.error("Error fetching target URL:", fetchError.message);
+        }
+
+        const sanitizedCookies = JSON.stringify(fetchedCookies.map(cookie => ({
           name: cookie.name,
           domain: cookie.domain,
-          expires: cookie.expires,
+          expires: cookie.expires !== null ? cookie.expires : undefined,
           secure: cookie.secure,
           httpOnly: cookie.httpOnly,
           sameSite: cookie.sameSite,
-          deprecated: !cookie.sameSite || cookie.expires === -1
+          deprecated: !cookie.sameSite
         })));
 
         await env.DB.prepare(
@@ -45,7 +117,10 @@ export default {
           .bind(url, sanitizedCookies, new Date().toISOString())
           .run();
 
-        return new Response(JSON.stringify({ message: "Audit saved" }), {
+        return new Response(JSON.stringify({
+          message: "Audit saved",
+          analyzedCookies: fetchedCookies.length
+        }), {
           status: 200,
           headers: {
             "Content-Type": "application/json",
@@ -53,6 +128,7 @@ export default {
           }
         });
       } catch (error) {
+        console.error("Error in /audit endpoint:", error.stack);
         return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
           headers: {
@@ -87,7 +163,7 @@ export default {
       }
     }
 
-    // Default response for unsupported methods or paths
+    // Default fallback for unsupported method/path
     return new Response(JSON.stringify({ error: "Method or path not allowed" }), {
       status: 405,
       headers: {
