@@ -1,3 +1,4 @@
+import { handleAudit } from './audit';
 export default {
   async fetch(request, env) {
     const { method } = request;
